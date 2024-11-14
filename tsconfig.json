@@ -1,0 +1,70 @@
+//{
+//  "compilerOptions": {
+//    "target": "es2016",
+//    "module": "commonjs",
+//    "moduleResolution": "node",
+//    "strictPropertyInitialization": false,
+//    "forceConsistentCasingInFileNames": true,
+//
+//    "rootDir": "./src",
+//    "outDir": "./dist",
+////    "strict": true,
+//    "esModuleInterop": true,
+//    "skipLibCheck": true,
+//    "experimentalDecorators": true,
+//    "emitDecoratorMetadata": true,
+//    "paths": {
+////      "@memo/persistence": [
+////        "src/database/index.ts"
+////      ],
+////      "@memo/types": [
+////        "src/types/index.ts"
+////      ],
+//      "@test/utils": [
+//        "src/utils/index.ts"
+//      ]
+//    }
+//  },
+//  "include": ["src/**/*"]
+//}
+
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    "target": "es2016",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,                    /* Emit design-type metadata for decorated declarations in source files. */
+
+    /* Modules */
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "outDir": "./dist",
+    "forceConsistentCasingInFileNames": true,
+    "strictPropertyInitialization": false,
+    "skipLibCheck": true,
+    "paths": {
+//      "@test/persistence": [
+//        "src/database/index.ts"
+//      ],
+//      "@test/types": [
+//        "src/types/index.ts"
+//      ],
+      "@test/utils": [
+        "src/utils/index.ts"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
+}
+
