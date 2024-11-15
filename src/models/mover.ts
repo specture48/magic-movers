@@ -1,5 +1,11 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+export enum MoverStatus {
+    RESTING='resting',
+    LOADING='loading',
+    ON_MISSION='on-mission',
+}
+
 export interface IMagicMover extends Document {
     name: string;
     weightLimit: number;
@@ -15,7 +21,7 @@ const MagicMoverSchema: Schema = new Schema(
         weightLimit: { type: Number, required: true },
         questState: {
             type: String,
-            enum: ['resting', 'loading', 'on-mission'],
+            enum: Object.values(MoverStatus),
             default: 'resting',
             required: true,
         },
