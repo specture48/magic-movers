@@ -15,5 +15,4 @@ const ActivityLogSchema: Schema = new Schema(
     { timestamps: true }
 );
 
-const ActivityLog = mongoose.model<IActivityLog>('ActivityLog', ActivityLogSchema);
-export default ActivityLog;
+export const ActivityLog = mongoose.model<IActivityLog>('ActivityLog', ActivityLogSchema);

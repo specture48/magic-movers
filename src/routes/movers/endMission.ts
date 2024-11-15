@@ -1,5 +1,10 @@
-import MagicMover, {MoverStatus} from "../../models/mover";
-import ActivityLog from "../../models/activity-log";
+import mongoose from "mongoose";
+
+import {MoverStatus} from "@test/models";
+import BaseError, {ErrorTypes} from "../../types/types/error";
+import container from "../../container";
+import {MagicMoverService} from "../../services/magic-mover.service";
+import {ActivityLogService} from "../../services/activity-log.service";
 
 /**
  * @swagger
@@ -61,57 +66,44 @@ import ActivityLog from "../../models/activity-log";
  */
 
 export const endMission = async (req, res) => {
-    const { id:moverId } = req.params;
+    const {id: moverId} = req.params;
+    const session = await mongoose.startSession();
+    session.startTransaction(); // Start transaction
 
     try {
-        // Fetch the Magic Mover by ID
-        const mover = await MagicMover.findById(moverId);
+        const magicMoverService = container.resolve<MagicMoverService>("magicMoverService");
+        const activityLogService = container.resolve<ActivityLogService>("activityLogService");
 
+        // Verify that the Magic Mover exists and is in a state that allows loading
+        const mover = await magicMoverService.findById(moverId, session);
         if (!mover) {
-            return res.status(404).json({ message: 'Magic Mover not found' });
+            throw new BaseError(ErrorTypes.INVALID_DATA, 'Magic Mover not found');
         }
 
         // Ensure the Mover is currently on a mission
         if (mover.questState !== MoverStatus.ON_MISSION) {
-            return res.status(400).json({ message: 'Mover is not currently on a mission' });
+            throw new BaseError(ErrorTypes.INVALID_DATA, 'Mover is not currently on a mission');
         }
 
-        // Start a transaction for safe update
-        const session = await MagicMover.startSession();
-        session.startTransaction();
+        mover.currentItems = [];
+        mover.questState = MoverStatus.RESTING;
+        mover.missionsCompleted += 1;
 
-        try {
-            // Unload all items and update the mover's state
-            mover.currentItems = [];
-            mover.questState = MoverStatus.RESTING;
-            mover.missionsCompleted+=1;
-            await mover.save({ session });
+        await Promise.all([
+            magicMoverService.updateMoverState(mover.id, mover, session),
+            activityLogService.createLog(mover, MoverStatus.RESTING, mover.currentItems.map(item => item._id.toString()), session)
+        ])
 
-            // Create a log entry for ending the mission
-            await ActivityLog.create(
-                [
-                    {
-                        mover: mover,
-                        action: MoverStatus.RESTING,
-                        timestamp: new Date(),
-                    },
-                ],
-                { session }
-            );
+        // Commit the transaction
+        await session.commitTransaction();
 
-            // Commit the transaction
-            await session.commitTransaction();
-            await session.endSession();
-
-            return res.status(200).json({ message: 'Mission ended successfully', mover });
-        } catch (error) {
-            // Rollback the transaction in case of error
-            await session.abortTransaction();
-            await session.endSession();
-            throw error;
-        }
+        return res.status(200).json({message: 'Mission ended successfully', mover});
     } catch (error) {
         console.error('Error ending mission:', error);
-        return res.status(500).json({ message: 'Internal server error' });
+        session.abortTransaction(); // Abort transaction on error
+
+        throw error
+    } finally {
+        session.endSession();
     }
 };

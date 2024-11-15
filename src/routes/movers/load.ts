@@ -1,18 +1,18 @@
 import {ArrayMinSize, IsArray, IsNotEmpty} from "class-validator";
 import mongoose from "mongoose";
+import {MoverStatus} from "@test/models";
 
-import ActivityLog from "../../models/activity-log";
-import MagicMover, {MoverStatus} from "../../models/mover";
+import container from "../../container";
+import {MagicMoverService} from "../../services/magic-mover.service";
+import {MagicItemService} from "../../services/item.service";
+import BaseError, {ErrorTypes} from "../../types/types/error";
 
-
-export class LoadMagicMoverInput{
+export class LoadMagicMoverInput {
     @IsNotEmpty()
     @IsArray()
     @ArrayMinSize(1)
-    itemIds:string[];
+    itemIds: string[];
 }
-
-//TODO validate the weight limit
 
 /**
  * @swagger
@@ -86,46 +86,53 @@ export class LoadMagicMoverInput{
 export const loadMagicMover = async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction(); // Start transaction
+
     try {
-        const { id: moverId } = req.params;
-        const { itemIds } = req.body;
+        const {id: moverId} = req.params;
+        const {itemIds} = req.body as LoadMagicMoverInput;
+
+        // Resolve services
+        const magicMoverService = container.resolve<MagicMoverService>("magicMoverService");
+        const activityLogService = container.resolve("activityLogService");
 
         // Verify that the Magic Mover exists and is in a state that allows loading
-        const mover = await MagicMover.findById(moverId).session(session);
+        const mover = await magicMoverService.findById(moverId, session);
         if (!mover) {
-            throw new Error('Magic Mover not found');
+            throw new BaseError(ErrorTypes.INVALID_DATA, 'Magic Mover not found');
         }
+
+        await validateWeightLimit(itemIds, mover.weightLimit);
 
         if (mover.questState !== MoverStatus.RESTING) {
-            throw new Error('Cannot load items onto a Magic Mover that is not resting');
+            throw new BaseError(ErrorTypes.INVALID_DATA, 'Cannot load items onto a Magic Mover that is not resting');
         }
 
-        // Update Magic Mover state and add items to it
         mover.questState = MoverStatus.LOADING;
-        mover.currentItems.push(...itemIds);
-        //TODO check the awaits maybe we can combine some to improve performance
-        await mover.save({ session }); // Save within the session
-
-        // Log the loading action
-        const activityLog = new ActivityLog({
-            mover: mover._id, // Ensure reference to the mover
-            action: MoverStatus.LOADING,
-            timestamp: new Date(),
-        });
-        await activityLog.save({ session }); // Save log within the session
+        const [updatedMover, activityLog] = await Promise.all([
+            magicMoverService.updateMoverState(mover.id,mover, session),
+            activityLogService.createLog(mover, MoverStatus.LOADING, mover.currentItems.map(item => item._id.toString()), session)
+        ])
 
         // Commit the transaction
         await session.commitTransaction();
-        await session.endSession();
 
         return res.status(200).json({
             message: 'Items loaded onto Magic Mover successfully',
-            mover,
-            log: activityLog,
         });
     } catch (error) {
-        await session.abortTransaction(); // Abort transaction on error
-        await session.endSession();
-        return res.status(500).json({ message: 'Error loading items', error: error.message });
+         session.abortTransaction(); // Abort transaction on error
+        throw error
+    } finally {
+         session.endSession(); // Always end the session
+    }
+};
+
+const validateWeightLimit = async (itemIds: string[], weightLimit: number): Promise<void> => {
+    const magicItemService = container.resolve<MagicItemService>("magicItemService");
+    const items = await magicItemService.findByIds(itemIds);
+
+    const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
+    if (totalWeight > weightLimit) {
+        throw new Error(`Total weight of items (${totalWeight}) exceeds the allowed limit of ${weightLimit}`);
     }
 };

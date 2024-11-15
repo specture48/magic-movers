@@ -1,4 +1,4 @@
-import MagicMover from "../../models/mover";
+import container from "../../container";
 
 /**
  * @swagger
@@ -53,11 +53,12 @@ import MagicMover from "../../models/mover";
  *     tags:
  *       - Magic Movers
  */
-export default async function getMovers(req, res) {
-    // Fetch Magic Movers ordered by missionCount in descending order
-    const movers = await MagicMover.find().sort({missionsCompleted:-1});
-    return res.status(200).json(movers);
+export  const getMovers=async (req, res)=> {
+    const moverService = container.resolve("magicMoverService"); // Resolve the service
 
+    const movers = await moverService.getMoversByMissionCount();
+
+    return res.status(200).json({data:movers});
         //TODO return data as array of movers
         //TODO maybe pagination
 }

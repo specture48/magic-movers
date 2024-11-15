@@ -37,5 +37,4 @@ const MagicMoverSchema: Schema = new Schema(
 //     return this.currentItems.reduce((acc: number, item: any) => acc + item.weight, 0);
 // });
 
-const MagicMover = mongoose.model<IMagicMover>('MagicMover', MagicMoverSchema);
-export default MagicMover;
+export const MagicMover = mongoose.model<IMagicMover>('MagicMover', MagicMoverSchema);

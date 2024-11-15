@@ -4,13 +4,13 @@ import {wrapHandler} from "@test/utils";
 
 import {validateInputHandler} from "../../middlewares/validator";
 
-import createMover from "./createMover";
-import {CreateMoverInput} from "./createMover"
+import {createMover} from "./createMover";
 import {loadMagicMover, LoadMagicMoverInput} from "./load";
-import getMovers from "./getMovers";
+import {getMovers} from "./getMovers";
 import {startMission} from "./startMission";
 import {endMission} from "./endMission";
 import {getMoverActivityLogs} from "./getMoverActivityLogs";
+import {CreateMoverInput} from "./inputs/create-mover.input";
 
 const router = Router();
 

@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
-import MagicMover, { MoverStatus } from "../../models/mover";
-import ActivityLog from "../../models/activity-log";
+import {MoverStatus} from "@test/models";
+
+import container from "../../container";
+import {MagicMoverService} from "../../services/magic-mover.service";
+import {ActivityLogService} from "../../services/activity-log.service";
+import BaseError, {ErrorTypes} from "../../types/types/error";
 
 /**
  * @swagger
@@ -58,50 +62,45 @@ import ActivityLog from "../../models/activity-log";
  *                   type: string
  */
 export const startMission = async (req, res) => {
-    const { id: moverId } = req.params;
+    const {id: moverId} = req.params;
 
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
-        // Fetch the mover by ID
-        const mover = await MagicMover.findById(moverId).session(session);
+        // Resolve services
+        const magicMoverService = container.resolve<MagicMoverService>("magicMoverService");
+        const activityLogService = container.resolve<ActivityLogService>("activityLogService");
+
+        // Verify that the Magic Mover exists and is in a state that allows loading
+        const mover = await magicMoverService.findById(moverId, session);
         if (!mover) {
-            return res.status(404).json({ message: "Mover not found" });
+            throw new BaseError(ErrorTypes.INVALID_DATA, 'Magic Mover not found');
         }
 
         // Validate the current state
         if (mover.questState === MoverStatus.ON_MISSION) {
-            return res.status(400).json({ message: "Mover is already on a mission" });
+            return res.status(400).json({message: "Mover is already on a mission"});
         }
 
         if (mover.questState !== MoverStatus.LOADING) {
-            return res.status(400).json({
-                message: "Mover must be in 'loading' state to start a mission",
-            });
+            throw new BaseError(ErrorTypes.INVALID_DATA, 'Mover must be in loading state to start a mission');
         }
 
-        // Update the mover's state to 'on-mission'
         mover.questState = MoverStatus.ON_MISSION;
-        await mover.save({ session });
-
-        // Log the transition
-        const logEntry = new ActivityLog({
-            mover,
-            action: MoverStatus.ON_MISSION,
-            timestamp: new Date(),
-        });
-        await logEntry.save({ session });
+        await Promise.all([
+            magicMoverService.updateMoverState(mover.id,mover, session),
+            activityLogService.createLog(mover, MoverStatus.ON_MISSION, mover.currentItems.map(item => item._id.toString()), session)
+        ])
 
         // Commit the transaction
         await session.commitTransaction();
-        await session.endSession();
 
-        return res.status(200).json({ message: "Mission started successfully", mover });
+        return res.status(200).json({message: "Mission started successfully", mover});
     } catch (error) {
         await session.abortTransaction();
+        throw error
+    } finally {
         await session.endSession();
-        console.error("Error starting mission:", error);
-        return res.status(500).json({ message: "Internal server error" });
     }
 };

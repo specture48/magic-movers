@@ -3,9 +3,9 @@ import {Router} from "express";
 import {wrapHandler} from "@test/utils";
 
 import createItem from "./createItem";
-import {CreateItemInput} from "./createItem"
-import {validateInputHandler} from "../../middlewares/validator";
 import getItems from "./getItems";
+import {validateInputHandler} from "../../middlewares/validator";
+import {CreateItemInput} from "./inputs/create-item.input";
 
 const router = Router();
 

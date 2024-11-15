@@ -54,6 +54,9 @@
 //      "@test/types": [
 //        "src/types/index.ts"
 //      ],
+      "@test/models": [
+        "src/models/index.ts"
+      ],
       "@test/utils": [
         "src/utils/index.ts"
       ]

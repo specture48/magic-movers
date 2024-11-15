@@ -1,57 +1,8 @@
 import { Request, Response } from 'express';
-import { IsInt, IsNotEmpty } from "class-validator";
-import Mover, {MoverStatus} from "../../models/mover";
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     CreateMoverInput:
- *       type: object
- *       required:
- *         - name
- *         - weightLimit
- *       properties:
- *         name:
- *           type: string
- *           description: The name of the Magic Mover
- *         weightLimit:
- *           type: integer
- *           description: The weight limit of the Magic Mover
- *           example: 100
- *
- *   responses:
- *     CreateMoverResponse:
- *       description: Successfully created a Magic Mover
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               id:
- *                 type: string
- *                 description: The unique ID of the Magic Mover
- *               name:
- *                 type: string
- *                 description: The name of the Magic Mover
- *               weightLimit:
- *                 type: integer
- *                 description: The weight limit of the Magic Mover
- *               questState:
- *                 type: string
- *                 description: The current state of the Magic Mover
- *                 example: "resting"
- *
- */
-
-export class CreateMoverInput {
-    @IsNotEmpty()
-    name: string;
-
-    @IsNotEmpty()
-    @IsInt()
-    weightLimit: number;
-}
+import container from "../../container";
+import {CreateMoverInput} from "./inputs/create-mover.input";
+import {MagicMoverService} from "../../services/magic-mover.service";
 
 /**
  * @swagger
@@ -71,19 +22,16 @@ export class CreateMoverInput {
  *       500:
  *         description: Server error
  */
-const createMover = async (req: Request, res: Response) => {
-    const { name, weightLimit }: CreateMoverInput = req.body;
+export const createMover = async (req: Request, res: Response) => {
+    const input: CreateMoverInput = req.body;
+    const moverService = container.resolve<MagicMoverService>("moverService")
 
     try {
-        const newMover = await Mover.create({
-            name,
-            weightLimit,
-            questState: MoverStatus.RESTING
-        });
+        const newMover=await moverService.createMover(input)
+
         res.status(201).json({ ...newMover.toObject() });
     } catch (error) {
         res.status(500).json({ error: 'Failed to create mover' });
     }
 };
 
-export default createMover;

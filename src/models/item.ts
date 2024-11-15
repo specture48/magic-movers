@@ -13,5 +13,4 @@ const MagicItemSchema: Schema = new Schema(
     { timestamps: true }
 );
 
-const MagicItem = mongoose.model<IMagicItem>('MagicItem', MagicItemSchema);
-export default MagicItem;
+export const MagicItem = mongoose.model<IMagicItem>('MagicItem', MagicItemSchema);

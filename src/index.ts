@@ -1,14 +1,19 @@
-import express, {Request, Response} from 'express';
+import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import {scopePerRequest} from "awilix-express";
 
 dotenv.config();
 
 import {router} from "./routes";
+import container from "./container";
 
 const app = express();
+
+//TODO create tsconfig paths
+//TODO check all routes if need transaction
 
 const PORT = process.env.PORT;
 const MONGO_URI = process.env.DATABASE_URL
@@ -30,6 +35,12 @@ const swaggerOptions = {
             version: '1.0.0',
             description: 'API for managing Magic Movers and their activities',
         },
+        servers: [
+            {
+                url: '/api', // Prefix for all APIs
+                description: 'API base path',
+            },
+        ],
         components: {
             schemas: {
                 "MagicItem": {
@@ -65,28 +76,6 @@ const swaggerOptions = {
                     },
                     "required": ["id", "name", "weight", "createdAt", "updatedAt"]
                 },
-// Mover: {
-                //     type: 'object',
-                //     properties: {
-                //         id: {
-                //             type: 'string',
-                //             description: 'Unique identifier for the mover',
-                //         },
-                //         name: {
-                //             type: 'string',
-                //             description: 'Name of the mover',
-                //         },
-                //         weightLimit: {
-                //             type: 'integer',
-                //             description: 'Maximum weight the mover can handle',
-                //         },
-                //         questState: {
-                //             type: 'string',
-                //             enum: ['resting', 'loading', 'on-mission'],
-                //             description: 'Current state of the mover',
-                //         },
-                //     },
-                // },
                 "Mover": {
                     "type": "object",
                     "properties": {
@@ -192,12 +181,10 @@ const swaggerOptions = {
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
-
-
 // Middleware for Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
 app.use(express.json());
+app.use(scopePerRequest(container));
 
 // Connect to MongoDB
 mongoose.connect(MONGO_URI)
@@ -205,7 +192,7 @@ mongoose.connect(MONGO_URI)
     .catch((error) => console.error('MongoDB connection error:', error));
 
 // Routes
-app.use('/', router);
+app.use('/api', router);
 
 // Start server
 app.listen(PORT, () => {

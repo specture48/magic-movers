@@ -1,14 +1,6 @@
-import { IsNumber, IsString, Min} from "class-validator";
-import MagicItem from "../../models/item";
-
-export class CreateItemInput {
-    @IsString()
-    name!: string;
-
-    @IsNumber()
-    @Min(1)
-    weight!: number;
-}
+import container from "../../container";
+import {MagicItemService} from "../../services/item.service";
+import {CreateItemInput} from "./inputs/create-item.input";
 
 /**
  * @swagger
@@ -57,11 +49,10 @@ export class CreateItemInput {
  */
 export const createItem = async (req, res) => {
     try {
-        const { name, weight } = req.body as CreateItemInput
+        const input = req.body as CreateItemInput
+        const magicItemService = container.resolve<MagicItemService>("magicItemService")
 
-        const newMagicItem = new MagicItem({ name, weight });
-        await newMagicItem.save();
-
+        const newMagicItem=await magicItemService.createItem(input)
         return res.status(201).json({ ...newMagicItem });
     } catch (error) {
         return res.status(500).json({ message: 'Error creating Magic Item', error: error.message });
