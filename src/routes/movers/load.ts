@@ -1,14 +1,21 @@
-import { Request, Response } from 'express';
-import mongoose from 'mongoose';
+import {IsNotEmpty} from "class-validator";
+import mongoose from "mongoose";
 
-import MagicMover from "../../models/mover";
 import ActivityLog from "../../models/activity-log";
+import MagicMover from "../../models/mover";
+
+
+export class LoadMagicMoverInput{
+    @IsNotEmpty()
+    itemIds:string[];
+}
+
 
 export const loadMagicMover = async (req, res) => {
     const session = await mongoose.startSession();
-    session.startTransaction();
+    session.startTransaction(); // Start transaction
     try {
-        const { id:moverId } = req.params;
+        const { id: moverId } = req.params;
         const { itemIds } = req.body;
 
         // Verify that the Magic Mover exists and is in a state that allows loading
@@ -17,25 +24,24 @@ export const loadMagicMover = async (req, res) => {
             throw new Error('Magic Mover not found');
         }
 
-        //TODO use enum
-        if (mover.questState === 'resting') {
+        if (mover.questState !== 'resting') {
             throw new Error('Cannot load items onto a Magic Mover that is not resting');
         }
 
         // Update Magic Mover state and add items to it
         mover.questState = 'loading';
         mover.currentItems.push(...itemIds);
-        await mover.save({ session });
+        await mover.save({ session }); // Save within the session
 
         // Log the loading action
         const activityLog = new ActivityLog({
-            moverId,
-            transitionType: 'load',
+            mover: mover._id, // Ensure reference to the mover
+            action: 'loading',
             timestamp: new Date(),
         });
-        await activityLog.save({ session });
+        await activityLog.save({ session }); // Save log within the session
 
-        // Commit transaction
+        // Commit the transaction
         await session.commitTransaction();
         await session.endSession();
 
@@ -45,7 +51,7 @@ export const loadMagicMover = async (req, res) => {
             log: activityLog,
         });
     } catch (error) {
-        await session.abortTransaction();
+        await session.abortTransaction(); // Abort transaction on error
         await session.endSession();
         return res.status(500).json({ message: 'Error loading items', error: error.message });
     }

@@ -1,15 +1,17 @@
-import {FindConfig, MemoRequest} from "@memo/types";
+import MagicMover from "../../models/mover";
 
-export default async function getMovers(req: MemoRequest, res) {
-    // const manager = container.resolve('manager') as EntityManager
-    const loggedInUser = req.loggedInUser
+export default async function getMovers(req, res) {
+    // Fetch Magic Movers ordered by missionCount in descending order
+    const movers = await MagicMover.find().sort({missionsCompleted:-1});
+    return res.status(200).json(movers);
 
-    return res.status(200).json({
+    // return res.status(200).json({
         //TODO return data as array of movers
         //TODO maybe pagination
-        data,
+
+        // data,
         // count,
         // offset: skip,
         // limit: take,
-    })
+    // })
 }

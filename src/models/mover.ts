@@ -6,7 +6,7 @@ export interface IMagicMover extends Document {
     questState: 'resting' | 'loading' | 'on-mission';
     currentItems: mongoose.Types.ObjectId[];
     missionsCompleted: number;
-    totalItemsWeight?: number;
+    // totalItemsWeight?: number;
 }
 
 const MagicMoverSchema: Schema = new Schema(
