@@ -1,1 +1,1 @@
-export * from './memo-request'
+export * from './magic-movers-request'

@@ -2,7 +2,6 @@ import {Request} from 'express'
 import {AwilixContainer} from "awilix";
 
 
-export interface MemoRequest extends Request{
-    // loggedInUser:User
+export interface MagicMoversRequest extends Request{
     container:AwilixContainer
 }

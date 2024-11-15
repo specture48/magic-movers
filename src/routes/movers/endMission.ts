@@ -90,7 +90,7 @@ export const endMission = async (req, res) => {
         mover.missionsCompleted += 1;
 
         await Promise.all([
-            magicMoverService.updateMoverState(mover.id, mover, session),
+            magicMoverService.updateMover(mover.id, mover, session),
             activityLogService.createLog(mover, MoverStatus.RESTING, mover.currentItems.map(item => item._id.toString()), session)
         ])
 

@@ -48,12 +48,6 @@
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
     "paths": {
-//      "@test/persistence": [
-//        "src/database/index.ts"
-//      ],
-//      "@test/types": [
-//        "src/types/index.ts"
-//      ],
       "@test/models": [
         "src/models/index.ts"
       ],

@@ -109,7 +109,7 @@ export const loadMagicMover = async (req, res) => {
 
         mover.questState = MoverStatus.LOADING;
         const [updatedMover, activityLog] = await Promise.all([
-            magicMoverService.updateMoverState(mover.id,mover, session),
+            magicMoverService.updateMover(mover.id,mover, session),
             activityLogService.createLog(mover, MoverStatus.LOADING, mover.currentItems.map(item => item._id.toString()), session)
         ])
 

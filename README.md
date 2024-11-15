@@ -32,7 +32,7 @@ cd magic-movers-api
 
 ### 2. Install Dependencies
 ```bash
-npm install
+yarn install
 ```
 
 ### 3. Setup Environment Variables
@@ -45,18 +45,18 @@ MONGO_URI=mongodb://localhost:27017/magic-movers
 
 ### 4. Start the Development Server
 ```bash
-npm run dev
+yarn dev
 ```
 The server will start on the specified `PORT` (default: `3000`).
 
 ### 5. Build for Production
 ```bash
-npm run build
+yarn build
 ```
 
 ### 6. Run Production Build
 ```bash
-npm start
+yarn start
 ```
 
 ---
@@ -69,11 +69,11 @@ Swagger documentation is available at:
 ---
 
 ## Scripts
-| Command         | Description                                  |
-|------------------|----------------------------------------------|
-| `npm run dev`   | Starts the development server using nodemon. |
-| `npm run build` | Compiles TypeScript to JavaScript.           |
-| `npm start`     | Starts the compiled production server.       |
+| Command      | Description                                  |
+|--------------|----------------------------------------------|
+| `yarn dev`   | Starts the development server using nodemon. |
+| `yarn build` | Compiles TypeScript to JavaScript.           |
+| `yarn start` | Starts the compiled production server.       |
 
 ---
 
@@ -82,9 +82,11 @@ Swagger documentation is available at:
 src
 ├── controllers        # Request handlers
 ├── middlewares        # Middleware functions
+├── services           # Services
 ├── models             # Mongoose schemas/models
 ├── routes             # API routes
 ├── utils              # Helper functions
+├── types              # Types
 └── index.ts           # Application entry point
 ```
 
@@ -102,7 +104,7 @@ src
 ```
 
 ### Load Items
-**POST** `/movers/:moverId/load`
+**POST** `/movers/:id/load`
 ```json
 {
   "items": ["itemId1", "itemId2"]
@@ -110,19 +112,19 @@ src
 ```
 
 ### Start a Mission
-**POST** `/movers/:moverId/start`
+**POST** `/movers/:id/start`
 ```json
 {}
 ```
 
 ### End a Mission
-**POST** `/movers/:moverId/end`
+**POST** `/movers/:id/end`
 ```json
 {}
 ```
 
 ### Get Activity Logs
-**GET** `/movers/:moverId/logs`
+**GET** `/movers/:id/logs`
 
 ---
 
@@ -145,18 +147,5 @@ src
 | ts-node        | ^10.x      | Run TypeScript directly       |
 
 ---
-
-## Contribution
-1. Fork the repository.
-2. Create a feature branch.
-3. Submit a pull request.
-
----
-
-## License
-This project is licensed under the MIT License. See the `LICENSE` file for details.
-
----
-
 ## Author
 Developed by **Daniel**.
