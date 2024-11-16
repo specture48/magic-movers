@@ -8,7 +8,7 @@ export class ActivityLogService {
      * Creates a new activity log for a specific mover.
      * @param {IMagicMover} mover - The mover associated with the activity.
      * @param {string} action - The action performed by the mover.
-     * @param {string[]} [items=[]] - The items involved in the action (optional).
+     * @param {string[]} [items=[]] - The items involved in the action.
      * @param {any} session - The database session to use for the transaction.
      * @returns {Promise<IActivityLog>} - The created activity log.
      */
@@ -30,7 +30,8 @@ export class ActivityLogService {
     }
 
     /**
-     * Retrieves activity logs for a specific mover, sorted by the most recent.
+     * Retrieves activity log
+s for a specific mover, sorted by the most recent.
      * @param {string} moverId - The ID of the mover whose logs are to be fetched.
      * @returns {Promise<IActivityLog[]>} - An array of activity logs for the mover.
      */

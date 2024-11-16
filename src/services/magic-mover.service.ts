@@ -42,16 +42,20 @@ export class MagicMoverService {
     }
 
     /**
-     * Retrieves all movers sorted by the number of missions they have completed.
-     * @returns {Promise<IMagicMover[]>} - A list of movers sorted by missions completed in descending order.
+     * Fetches a paginated list of movers sorted by the number of completed missions.
+     *
+     * This function retrieves movers with a specified limit and offset for pagination. It also provides the total number of movers available in the system.
+     *
+     * @param {number} offset - The number of items to skip, used for pagination.
+     * @param {number} limit - The maximum number of items to return per page.
+     *
+     * @returns {Promise<{ movers: Array, total: number }>} A promise that resolves to an object containing:
+     *   - `movers`: An array of mover objects sorted by the number of completed missions (in descending order).
+     *   - `total`: The total count of movers in the database, without pagination.
+     *
+     * @throws {Error} If an error occurs while fetching the movers, an error will be thrown.
      */
-    async getMoversByMissionCount(): Promise<IMagicMover[]> {
-        return MagicMover.find().sort({ missionsCompleted: -1 });
-    }
-
-    async getPaginatedMovers(offset:number, limit:number) {
-        try {
-            // Fetch movers with sorting, limit, and skip for pagination
+    async getPaginatedMovers(offset:number, limit:number): Promise<{ movers: Array<any>; total: number; }> {
             const movers = await MagicMover.find()
                 .sort({ missionsCompleted: -1 })
                 .limit(limit)
@@ -61,10 +65,6 @@ export class MagicMoverService {
             const total = await MagicMover.countDocuments();
 
             return { movers, total };
-        } catch (error) {
-            console.error("Error fetching paginated movers:", error);
-            throw new Error("Failed to fetch paginated movers");
-        }
     }
 
 }

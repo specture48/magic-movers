@@ -1,4 +1,7 @@
-### Magic Movers API
+Here’s the updated README file with the **technologies used** section included:
+
+```markdown
+# Magic Movers API
 
 **Magic Movers API** is a RESTful service built with **Express**, **TypeScript**, and **Mongoose** for managing Magic Movers, their items, and their missions. The API supports logging of state transitions, mission management, and retrieving activity logs.
 
@@ -12,6 +15,19 @@
 - **End a Mission**: Unload all items, log the transition, and set the mover back to "resting".
 - **Activity Logs**: Fetch all activity logs of a specific mover.
 - **Leaderboard**: List movers by the number of completed missions in descending order.
+
+---
+
+## Technologies Used
+- **Node.js**: Runtime environment for executing JavaScript on the server side.
+- **Express.js**: Fast, minimalist web framework for building REST APIs.
+- **TypeScript**: Type-safe language built on JavaScript.
+- **Mongoose**: Elegant MongoDB object modeling for Node.js.
+- **MongoDB**: NoSQL database for storing Magic Movers and related data.
+- **Swagger**: For API documentation.
+- **Docker**: Containerization for consistent and portable deployment.
+- **Awilix**: Lightweight dependency injection container for managing app services and dependencies.
+
 
 ---
 
@@ -61,6 +77,25 @@ yarn start
 
 ---
 
+## Dockerizing the App
+
+### 1. Build Docker Image
+You can build the Docker image for the app using the following command:
+
+```bash
+docker build -t magic-movers-api .
+```
+
+### 2. Run Docker Container
+To run the app inside a Docker container, use the following command:
+
+```bash
+docker run -p 3000:3000 --env-file .env magic-movers-api
+```
+This will start the app in a Docker container, and it will be accessible at `http://localhost:3000`.
+
+---
+
 ## API Documentation
 ### Swagger Documentation
 Swagger documentation is available at:  
@@ -74,6 +109,25 @@ Swagger documentation is available at:
 | `yarn dev`   | Starts the development server using nodemon. |
 | `yarn build` | Compiles TypeScript to JavaScript.           |
 | `yarn start` | Starts the compiled production server.       |
+| `yarn test`  | Runs the tests.                              |
+
+---
+
+## Running Tests
+
+### 1. Install Test Dependencies
+Before running the tests, ensure you have the necessary dependencies installed:
+```bash
+yarn install
+```
+
+### 2. Run Tests
+To run the tests, execute the following command:
+```bash
+yarn test
+```
+
+This will run all tests in the `tests` folder and display the results in the terminal. You can configure your tests using the testing framework.
 
 ---
 
@@ -87,44 +141,9 @@ src
 ├── routes             # API routes
 ├── utils              # Helper functions
 ├── types              # Types
+├── tests              # Tests
 └── index.ts           # Application entry point
 ```
-
----
-
-## Example API Routes
-
-### Add a Magic Mover
-**POST** `/movers`
-```json
-{
-  "name": "Magic Mover 1",
-  "capacity": 100
-}
-```
-
-### Load Items
-**POST** `/movers/:id/load`
-```json
-{
-  "items": ["itemId1", "itemId2"]
-}
-```
-
-### Start a Mission
-**POST** `/movers/:id/start`
-```json
-{}
-```
-
-### End a Mission
-**POST** `/movers/:id/end`
-```json
-{}
-```
-
-### Get Activity Logs
-**GET** `/movers/:id/logs`
 
 ---
 
@@ -149,3 +168,4 @@ src
 ---
 ## Author
 Developed by **Daniel**.
+```

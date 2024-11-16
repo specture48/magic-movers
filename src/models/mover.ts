@@ -12,7 +12,6 @@ export interface IMagicMover extends Document {
     questState: 'resting' | 'loading' | 'on-mission';
     currentItems: mongoose.Types.ObjectId[];
     missionsCompleted: number;
-    // totalItemsWeight?: number;
 }
 
 const MagicMoverSchema: Schema = new Schema(
@@ -31,10 +30,5 @@ const MagicMoverSchema: Schema = new Schema(
     { timestamps: true }
 );
 
-// Virtual property to calculate total weight of items in real-time
-// MagicMoverSchema.virtual('totalItemsWeight').get(function () {
-//     // This requires populating currentItems with weight values.
-//     return this.currentItems.reduce((acc: number, item: any) => acc + item.weight, 0);
-// });
 
 export const MagicMover = mongoose.model<IMagicMover>('MagicMover', MagicMoverSchema);

@@ -6,11 +6,11 @@ import BaseError from "../types/types/error";
 const extendedValidators: Map<string, Constructor<any>> = new Map()
 
 
-export function registerOverriddenValidators(
-    extendedValidator: Constructor<any>
-): void {
-    extendedValidators.set(extendedValidator.name, extendedValidator)
-}
+// export function registerOverriddenValidators(
+//     extendedValidator: Constructor<any>
+// ): void {
+//     extendedValidators.set(extendedValidator.name, extendedValidator)
+// }
 
 const reduceErrorMessages = (errs: ValidationError[]): string[] => {
     return errs.reduce((acc: string[], next) => {

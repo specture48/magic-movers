@@ -1,21 +1,16 @@
 import {ObjectId} from "mongodb";
-import { IMagicMover, MoverStatus} from "@test/models";
+import {MoverStatus} from "@test/models";
+
 import {ActivityLogService} from "./activity-log.service";
-import {MagicItemService} from "./item.service";
+import {MagicItemService} from "./magic-item.service";
 import BaseError, {ErrorTypes} from "../types/types/error";
 import {MagicMoverService} from "./magic-mover.service";
 
-export class CreateMissionInput {
-    items: string[];
-    mover: IMagicMover
-}
 
 export class MissionService {
-
     private readonly magicItemService: MagicItemService;
     private readonly activityLogService: ActivityLogService;
     private readonly magicMoverService: MagicMoverService;
-
 
     constructor({
                     magicItemService,
@@ -37,7 +32,7 @@ export class MissionService {
      * @param session - The database session for the transaction.
      * @throws {BaseError} Throws if the Magic Mover is not found or is not on a mission.
      */
-    async endMission(moverId:string, session:any){
+    async endMission(moverId: string, session: any) {
         const mover = await this.magicMoverService.findById(moverId, session);
         if (!mover) {
             throw new BaseError(ErrorTypes.INVALID_DATA, 'Magic Mover not found');
@@ -65,7 +60,7 @@ export class MissionService {
      * @param session - The database session for the transaction.
      * @throws {BaseError} Throws if the Magic Mover is not found, already on a mission, or not in the loading state.
      */
-    async startMission(moverId: string,session:any){
+    async startMission(moverId: string, session: any) {
         const mover = await this.magicMoverService.findById(moverId, session);
         if (!mover) {
             throw new BaseError(ErrorTypes.INVALID_DATA, 'Magic Mover not found');
@@ -81,7 +76,7 @@ export class MissionService {
 
         mover.questState = MoverStatus.ON_MISSION;
         await Promise.all([
-            this.magicMoverService.updateMover(mover.id,mover, session),
+            this.magicMoverService.updateMover(mover.id, mover, session),
             this.activityLogService.createLog(mover, MoverStatus.ON_MISSION, mover.currentItems.map(item => item._id.toString()), session),
         ])
 
@@ -100,14 +95,14 @@ export class MissionService {
             throw new BaseError(ErrorTypes.INVALID_DATA, 'Magic Mover not found');
         }
 
-        await this.validateWeightLimit(itemIds, mover.weightLimit,session);
+        await this.validateWeightLimit(itemIds, mover.weightLimit, session);
 
         if (mover.questState !== MoverStatus.RESTING) {
             throw new BaseError(ErrorTypes.INVALID_DATA, 'Cannot load items onto a Magic Mover that is not resting');
         }
 
         mover.questState = MoverStatus.LOADING;
-        mover.currentItems=itemIds.map(item => new ObjectId(item));
+        mover.currentItems = itemIds.map(item => new ObjectId(item));
 
         await Promise.all([
             this.magicMoverService.updateMover(mover.id, mover, session),
@@ -121,19 +116,14 @@ export class MissionService {
      * @param weightLimit - The weight limit of the Magic Mover.
      * @throws {BaseError} Throws if the total weight of items exceeds the weight limit.
      */
-    async validateWeightLimit(itemIds: string[], weightLimit: number,session:any) {
-        const items = await this.magicItemService.findByIds(itemIds,session);
+    async validateWeightLimit(itemIds: string[], weightLimit: number, session: any) {
+        const items = await this.magicItemService.findByIds(itemIds, session);
 
         const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
         if (totalWeight > weightLimit) {
-            throw new BaseError(ErrorTypes.INVALID_DATA,`Total weight of items (${totalWeight}) exceeds the allowed limit of ${weightLimit}`);
+            throw new BaseError(ErrorTypes.INVALID_DATA, `Total weight of items (${totalWeight}) exceeds the allowed limit of ${weightLimit}`);
         }
     };
 
-    // async create(input: CreateMissionInput): Promise<IMission> {
-    //     const doc = new Mission({...input,});
-    //     await doc.save();
-    //     return doc;
-    // }
 
 }

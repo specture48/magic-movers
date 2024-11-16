@@ -1,5 +1,5 @@
 import container from "../../container";
-import {MagicItemService} from "../../services/item.service";
+import {MagicItemService} from "../../services/magic-item.service";
 import {CreateItemInput} from "./inputs/create-item.input";
 
 /**
@@ -53,6 +53,7 @@ export const createItem = async (req, res) => {
         const magicItemService = container.resolve<MagicItemService>("magicItemService")
 
         const newMagicItem=await magicItemService.createItem(input)
+
         return res.status(201).json({ ...newMagicItem });
     } catch (error) {
         return res.status(500).json({ message: 'Error creating Magic Item', error: error.message });

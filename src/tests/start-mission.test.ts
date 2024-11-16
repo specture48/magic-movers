@@ -3,7 +3,7 @@ import {MagicMover, MoverStatus, ActivityLog, MagicItem} from "@test/models";
 
 import {clearDatabase, connectToDatabase, disconnectFromDatabase} from "./test-utils/db";
 import {MissionService} from "../services/mission.service";
-import {MagicItemService} from "../services/item.service";
+import {MagicItemService} from "../services/magic-item.service";
 import {MagicMoverService} from "../services/magic-mover.service";
 import {ActivityLogService} from "../services/activity-log.service";
 import  {ErrorTypes} from "../types";

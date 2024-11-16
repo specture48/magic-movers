@@ -73,7 +73,6 @@ import {MagicMoverService} from "../../services/magic-mover.service";
  *       - Magic Movers
  */
 
-
 export const getMovers = async (req, res) => {
     const moverService = container.resolve<MagicMoverService>("magicMoverService"); // Resolve the service
 

@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import {Request, Response} from 'express';
 
 import container from "../../container";
 import {CreateMoverInput} from "./inputs/create-mover.input";
@@ -24,14 +24,10 @@ import {MagicMoverService} from "../../services/magic-mover.service";
  */
 export const createMover = async (req: Request, res: Response) => {
     const input: CreateMoverInput = req.body;
-    const moverService = container.resolve<MagicMoverService>("moverService")
+    const moverService = container.resolve<MagicMoverService>("magicMoverService")
 
-    try {
-        const newMover=await moverService.createMover(input)
+    const newMover = await moverService.createMover(input)
 
-        res.status(201).json({ ...newMover.toObject() });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to create mover' });
-    }
+    res.status(201).json({...newMover.toObject()});
 };
 

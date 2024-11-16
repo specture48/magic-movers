@@ -7,7 +7,23 @@
     "build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
     "dev": "nodemon",
     "start": "node -r tsconfig-paths/register dist/src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --runInBand"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@test/models$": "<rootDir>/src/models/index.ts",
+      "^@test/utils$": "<rootDir>/src/utils/index.ts"
+    },
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/tests/test-utils/db.ts"
+    ],
+    "testTimeout": 30000,
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/"
+    ]
   },
   "keywords": [],
   "author": "",
@@ -25,8 +41,12 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
+    "@types/jest": "^29.5.14",
     "@types/node": "^22.9.0",
+    "jest": "^29.7.0",
+    "mongodb-memory-server": "^10.1.2",
     "nodemon": "^2.0.22",
+    "ts-jest": "^29.2.5",
     "ts-node": "^10.9.1",
     "tsc-alias": "^1.8.8",
     "tsconfig-paths": "^4.2.0",

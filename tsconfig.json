@@ -1,33 +1,3 @@
-//{
-//  "compilerOptions": {
-//    "target": "es2016",
-//    "module": "commonjs",
-//    "moduleResolution": "node",
-//    "strictPropertyInitialization": false,
-//    "forceConsistentCasingInFileNames": true,
-//
-//    "rootDir": "./src",
-//    "outDir": "./dist",
-////    "strict": true,
-//    "esModuleInterop": true,
-//    "skipLibCheck": true,
-//    "experimentalDecorators": true,
-//    "emitDecoratorMetadata": true,
-//    "paths": {
-////      "@memo/persistence": [
-////        "src/database/index.ts"
-////      ],
-////      "@memo/types": [
-////        "src/types/index.ts"
-////      ],
-//      "@test/utils": [
-//        "src/utils/index.ts"
-//      ]
-//    }
-//  },
-//  "include": ["src/**/*"]
-//}
-
 {
   "compilerOptions": {
     "rootDir": ".",
@@ -37,7 +7,7 @@
 
     "target": "es2016",
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,                    /* Emit design-type metadata for decorated declarations in source files. */
+    "emitDecoratorMetadata": true,
 
     /* Modules */
     "module": "commonjs",

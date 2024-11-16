@@ -28,8 +28,6 @@ import {MissionService} from "../../services/mission.service";
  *               properties:
  *                 message:
  *                   type: string
- *                 mover:
- *                   $ref: '#/components/schemas/Mover'
  *       400:
  *         description: Invalid state or request
  *         content:
@@ -40,16 +38,6 @@ import {MissionService} from "../../services/mission.service";
  *                 message:
  *                   type: string
  *                   example: Mover is not currently on a mission
- *       404:
- *         description: Mover not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Magic Mover not found
  *       500:
  *         description: Internal server error
  *         content:
@@ -76,9 +64,7 @@ export const endMission = async (req, res) => {
 
         return res.status(200).json({message: 'Mission ended successfully'});
     } catch (error) {
-        console.error('Error ending mission:', error);
         session.abortTransaction(); // Abort transaction on error
-
         throw error
     } finally {
         session.endSession();

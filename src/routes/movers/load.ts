@@ -1,15 +1,16 @@
-import {ArrayMinSize, IsArray, IsNotEmpty} from "class-validator";
+import {ArrayMinSize, IsArray, IsMongoId, IsNotEmpty} from "class-validator";
 import mongoose from "mongoose";
 
 import container from "../../container";
 import {MagicMoverService} from "../../services/magic-mover.service";
-import {MagicItemService} from "../../services/item.service";
+import {MagicItemService} from "../../services/magic-item.service";
 import {MissionService} from "../../services/mission.service";
 
 export class LoadMagicMoverInput {
     @IsNotEmpty()
     @IsArray()
     @ArrayMinSize(1)
+    @IsMongoId({each: true})
     itemIds: string[];
 }
 
@@ -53,10 +54,6 @@ export class LoadMagicMoverInput {
  *                 message:
  *                   type: string
  *                   example: Items loaded onto Magic Mover successfully
- *                 mover:
- *                   $ref: '#/components/schemas/Mover'
- *                 log:
- *                   $ref: '#/components/schemas/ActivityLog'
  *       400:
  *         description: Validation error or invalid mover state.
  *         content:
