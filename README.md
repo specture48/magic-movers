@@ -1,5 +1,3 @@
-Here’s the updated README file with the **technologies used** section included:
-
 ```markdown
 # Magic Movers API
 
