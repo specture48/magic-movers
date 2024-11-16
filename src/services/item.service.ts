@@ -10,9 +10,9 @@ export class MagicItemService {
      * @param {CreateItemInput} input - The input data for creating the magic item.
      * @returns {Promise<MagicItem>} - The created magic item.
      */
-    async createItem(input: CreateItemInput): Promise<IMagicItem> {
+    async createItem(input: CreateItemInput,session?:any): Promise<IMagicItem> {
         const newMagicItem = new MagicItem({ ...input });
-        await newMagicItem.save();
+        await newMagicItem.save({session});
         return newMagicItem;
     }
 
@@ -30,8 +30,8 @@ export class MagicItemService {
      * @param {string[]} ids - An array of magic item IDs to fetch.
      * @returns {Promise<MagicItem[]>} - An array of magic items matching the provided IDs.
      */
-    async findByIds(ids: string[]): Promise<IMagicItem[]> {
-        const items = await MagicItem.find({ _id: { $in: ids } });
+    async findByIds(ids: string[],session:any): Promise<IMagicItem[]> {
+        const items = await MagicItem.find({ _id: { $in: ids } }).session(session);
         return items;
     }
 }

@@ -1,11 +1,10 @@
 import {ArrayMinSize, IsArray, IsNotEmpty} from "class-validator";
 import mongoose from "mongoose";
-import {MoverStatus} from "@test/models";
 
 import container from "../../container";
 import {MagicMoverService} from "../../services/magic-mover.service";
 import {MagicItemService} from "../../services/item.service";
-import BaseError, {ErrorTypes} from "../../types/types/error";
+import {MissionService} from "../../services/mission.service";
 
 export class LoadMagicMoverInput {
     @IsNotEmpty()
@@ -92,47 +91,20 @@ export const loadMagicMover = async (req, res) => {
         const {itemIds} = req.body as LoadMagicMoverInput;
 
         // Resolve services
-        const magicMoverService = container.resolve<MagicMoverService>("magicMoverService");
-        const activityLogService = container.resolve("activityLogService");
+        const missionService = container.resolve<MissionService>("missionService");
 
-        // Verify that the Magic Mover exists and is in a state that allows loading
-        const mover = await magicMoverService.findById(moverId, session);
-        if (!mover) {
-            throw new BaseError(ErrorTypes.INVALID_DATA, 'Magic Mover not found');
-        }
+        await missionService.load(moverId,itemIds,session)
 
-        await validateWeightLimit(itemIds, mover.weightLimit);
-
-        if (mover.questState !== MoverStatus.RESTING) {
-            throw new BaseError(ErrorTypes.INVALID_DATA, 'Cannot load items onto a Magic Mover that is not resting');
-        }
-
-        mover.questState = MoverStatus.LOADING;
-        const [updatedMover, activityLog] = await Promise.all([
-            magicMoverService.updateMover(mover.id,mover, session),
-            activityLogService.createLog(mover, MoverStatus.LOADING, mover.currentItems.map(item => item._id.toString()), session)
-        ])
-
-        // Commit the transaction
         await session.commitTransaction();
 
         return res.status(200).json({
             message: 'Items loaded onto Magic Mover successfully',
         });
     } catch (error) {
-         session.abortTransaction(); // Abort transaction on error
+        session.abortTransaction(); // Abort transaction on error
         throw error
     } finally {
-         session.endSession(); // Always end the session
+        session.endSession(); // Always end the session
     }
 };
 
-const validateWeightLimit = async (itemIds: string[], weightLimit: number): Promise<void> => {
-    const magicItemService = container.resolve<MagicItemService>("magicItemService");
-    const items = await magicItemService.findByIds(itemIds);
-
-    const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
-    if (totalWeight > weightLimit) {
-        throw new Error(`Total weight of items (${totalWeight}) exceeds the allowed limit of ${weightLimit}`);
-    }
-};

@@ -54,7 +54,6 @@ export const getMoverActivityLogs = async (req, res) => {
     const {id} = req.params;
     const activityLogService = container.resolve<ActivityLogService>("activityLogService")
 
-    // Fetch logs related to the given Magic Mover ID, sorted in descending order
     const logs = await activityLogService.getLogsByMover(id)
 
     return res.status(200).json({data: logs});

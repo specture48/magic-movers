@@ -1,10 +1,7 @@
 import mongoose from "mongoose";
 
-import {MoverStatus} from "@test/models";
-import BaseError, {ErrorTypes} from "../../types/types/error";
 import container from "../../container";
-import {MagicMoverService} from "../../services/magic-mover.service";
-import {ActivityLogService} from "../../services/activity-log.service";
+import {MissionService} from "../../services/mission.service";
 
 /**
  * @swagger
@@ -71,33 +68,13 @@ export const endMission = async (req, res) => {
     session.startTransaction(); // Start transaction
 
     try {
-        const magicMoverService = container.resolve<MagicMoverService>("magicMoverService");
-        const activityLogService = container.resolve<ActivityLogService>("activityLogService");
+        const missionService = container.resolve<MissionService>("missionService");
 
-        // Verify that the Magic Mover exists and is in a state that allows loading
-        const mover = await magicMoverService.findById(moverId, session);
-        if (!mover) {
-            throw new BaseError(ErrorTypes.INVALID_DATA, 'Magic Mover not found');
-        }
+        await missionService.endMission(moverId,session)
 
-        // Ensure the Mover is currently on a mission
-        if (mover.questState !== MoverStatus.ON_MISSION) {
-            throw new BaseError(ErrorTypes.INVALID_DATA, 'Mover is not currently on a mission');
-        }
-
-        mover.currentItems = [];
-        mover.questState = MoverStatus.RESTING;
-        mover.missionsCompleted += 1;
-
-        await Promise.all([
-            magicMoverService.updateMover(mover.id, mover, session),
-            activityLogService.createLog(mover, MoverStatus.RESTING, mover.currentItems.map(item => item._id.toString()), session)
-        ])
-
-        // Commit the transaction
         await session.commitTransaction();
 
-        return res.status(200).json({message: 'Mission ended successfully', mover});
+        return res.status(200).json({message: 'Mission ended successfully'});
     } catch (error) {
         console.error('Error ending mission:', error);
         session.abortTransaction(); // Abort transaction on error

@@ -43,7 +43,7 @@ const swaggerOptions = {
         ],
         components: {
             schemas: {
-                "MagicItem": {
+                MagicItem: {
                     "type": "object",
                     "properties": {
                         "id": {
@@ -76,7 +76,7 @@ const swaggerOptions = {
                     },
                     "required": ["id", "name", "weight", "createdAt", "updatedAt"]
                 },
-                "Mover": {
+                Mover: {
                     "type": "object",
                     "properties": {
                         "id": {
