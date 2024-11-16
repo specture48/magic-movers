@@ -48,4 +48,23 @@ export class MagicMoverService {
     async getMoversByMissionCount(): Promise<IMagicMover[]> {
         return MagicMover.find().sort({ missionsCompleted: -1 });
     }
+
+    async getPaginatedMovers(offset:number, limit:number) {
+        try {
+            // Fetch movers with sorting, limit, and skip for pagination
+            const movers = await MagicMover.find()
+                .sort({ missionsCompleted: -1 })
+                .limit(limit)
+                .skip(offset);
+
+            // Get total count of movers (without pagination)
+            const total = await MagicMover.countDocuments();
+
+            return { movers, total };
+        } catch (error) {
+            console.error("Error fetching paginated movers:", error);
+            throw new Error("Failed to fetch paginated movers");
+        }
+    }
+
 }
